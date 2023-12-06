@@ -7,6 +7,9 @@ import pyperclip
 import streamlit as st
 from streamlit_cropper import st_cropper
 from PIL import Image
+import re
+from datetime import datetime
+
 
 
 
@@ -16,7 +19,7 @@ def credits():
     st.title("Please credit me in your posts")
 
     # Text to be displayed in the text box
-    text_to_copy = "Thanks @Adeyemi Testimony for creating this tool that helped with generating the wrapped graphics"
+    text_to_copy = "Thanks, @Testimony Adeyemi for creating the tool that helped generate the wrapped graphics. Generate yours here https://linkedin-wrapped-generator.streamlit.app/"
 
     # Display the text in a text box
     st.text_area("Text:", value=text_to_copy, height=100)
@@ -40,75 +43,125 @@ def format_large_number(number):
 
 
 def data_analysis():
-    try:
-
-        ENGAGEMENT = pd.read_excel(excel_file, sheet_name='ENGAGEMENT')
-        TOP_POSTS = pd.read_excel(excel_file,sheet_name='TOP POSTS')
-        FOLLOWER = pd.read_excel(excel_file, sheet_name='FOLLOWERS')
-        DEMOGRAPHICS = pd.read_excel(excel_file, sheet_name='DEMOGRAPHICS')
-
-        ENGAGEMENT['Date'] = pd.to_datetime(ENGAGEMENT['Date'])
-        ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= '11/30/2023')]
-        ENGAGEMENT['month'] = ENGAGEMENT['Date'].dt.month
-        global Total_Impressions
-        Total_Impressions = ENGAGEMENT['Impressions'].sum()
-        Total_Impressions = format_large_number(Total_Impressions)
-        
-
-
-        global Total_Engagements
-        Total_Engagements = ENGAGEMENT['Engagements'].sum()
-        Total_Engagements = format_large_number(Total_Engagements) 
-
     
-        global total_followers
-        header = FOLLOWER.columns.tolist()
-        total_followers = header[-1]
-        total_followers = format_large_number(total_followers)
+    file_name_str = ""
+    file_name_str = str(excel_file.name)
+
+    file_name = file_name_str
+
+    # Define a regular expression pattern to match the date format
+    date_pattern = r'\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}'
+
+    # Search for the date pattern in the file name
+    match = re.search(date_pattern, file_name)
+
+    # Check if a match is found
+    if match:
+        # Extract the matched date string
+        date_string = match.group(0)
+        print("Extracted Date String:", date_string)
+        # Convert the date string to datetime objects
+        start_date, end_date = date_string.split('_')
+        start_date_object = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_object = datetime.strptime(end_date, "%Y-%m-%d")
+
+        # Calculate the duration
+        duration = end_date_object - start_date_object
+
+        # Check if the duration is more than 300 days
+        if duration.days > 300:
+            # Proceed with your logic here
+            print("Duration is more than 300 days. Proceeding with your logic...")
+
+                    
+            ENGAGEMENT = pd.read_excel(excel_file, sheet_name='ENGAGEMENT')
+            TOP_POSTS = pd.read_excel(excel_file,sheet_name='TOP POSTS')
+            FOLLOWER = pd.read_excel(excel_file, sheet_name='FOLLOWERS')
+            DEMOGRAPHICS = pd.read_excel(excel_file, sheet_name='DEMOGRAPHICS')
+
+            ENGAGEMENT['Date'] = pd.to_datetime(ENGAGEMENT['Date'])
+            ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= '11/30/2023')]
+            ENGAGEMENT['month'] = ENGAGEMENT['Date'].dt.month
+            global Total_Impressions
+            Total_Impressions = ENGAGEMENT['Impressions'].sum()
+            Total_Impressions = format_large_number(Total_Impressions)
+            
 
 
-        # Assign the second row as the header
-        FOLLOWER.columns = FOLLOWER.iloc[1]
-        # Drop the rows above the second row
-        FOLLOWER = FOLLOWER[2:].reset_index(drop=True)
-        FOLLOWER = FOLLOWER[(FOLLOWER['Date'] >= '01/01/2023') & (FOLLOWER['Date'] <= '11/30/2023')]
-        global Total_New_FOLLOWER
-        Total_New_FOLLOWER = FOLLOWER['New followers'].sum() 
-        Total_New_FOLLOWER = format_large_number(Total_New_FOLLOWER)
-        
-        
-        
-        global Top_Locations
-        global Top_Job_Titles
-        Top_Job_Titles = ""
-        Top_Locations = ""
-        Top_Industries = ""
-
-        # Check the value based on the "Top Demographics"
-        for index, row in DEMOGRAPHICS.iterrows():
-            top_demographics = row['Top Demographics']
-            value = row['Value']
-            if top_demographics == 'Job titles':
-                Top_Job_Titles += f"{value}\n"
-            elif top_demographics == 'Locations':
-                Top_Locations += f"{value}\n"
-            elif top_demographics == 'Industries':
-                Top_Industries += f"{value}\n"
-
-        # Display or use the result_string as needed with numbered bullets
-
-        Top_Job_Titles = "\n".join([f"{i+1}. {title}" for i, title in enumerate(Top_Job_Titles.split("\n")[:-1])])
-
-        Top_Locations = "\n".join([f"{i+1}. {location}" for i, location in enumerate(Top_Locations.split("\n")[:-1])])
-
-        Top_Industries = "\n".join([f"{i+1}. {industry}" for i, industry in enumerate(Top_Industries.split("\n")[:-1])])
+            global Total_Engagements
+            Total_Engagements = ENGAGEMENT['Engagements'].sum()
+            Total_Engagements = format_large_number(Total_Engagements) 
 
 
-    except pd.errors.SheetNameNotFound:
+            global total_followers
+            header = FOLLOWER.columns.tolist()
+            total_followers = header[-1]
+            total_followers = format_large_number(total_followers)
+
+
+            # Assign the second row as the header
+            FOLLOWER.columns = FOLLOWER.iloc[1]
+            # Drop the rows above the second row
+            FOLLOWER = FOLLOWER[2:].reset_index(drop=True)
+            FOLLOWER = FOLLOWER[(FOLLOWER['Date'] >= '01/01/2023') & (FOLLOWER['Date'] <= '11/30/2023')]
+            global Total_New_FOLLOWER
+            Total_New_FOLLOWER = FOLLOWER['New followers'].sum() 
+            Total_New_FOLLOWER = format_large_number(Total_New_FOLLOWER)
+            
+            
+            
+            global Top_Locations
+            global Top_Job_Titles
+            Top_Job_Titles = ""
+            Top_Locations = ""
+            Top_Industries = ""
+
+            # Check the value based on the "Top Demographics"
+            for index, row in DEMOGRAPHICS.iterrows():
+                top_demographics = row['Top Demographics']
+                value = row['Value']
+                if top_demographics == 'Job titles':
+                    Top_Job_Titles += f"{value}\n"
+                elif top_demographics == 'Locations':
+                    Top_Locations += f"{value}\n"
+                elif top_demographics == 'Industries':
+                    Top_Industries += f"{value}\n"
+
+            # Display or use the result_string as needed with numbered bullets
+
+            Top_Job_Titles = "\n".join([f"{i+1}. {title}" for i, title in enumerate(Top_Job_Titles.split("\n")[:-1])])
+
+            Top_Locations = "\n".join([f"{i+1}. {location}" for i, location in enumerate(Top_Locations.split("\n")[:-1])])
+
+            Top_Industries = "\n".join([f"{i+1}. {industry}" for i, industry in enumerate(Top_Industries.split("\n")[:-1])])
+
+
+            page1()
+            page2()
+            page3()
+            page4()
+            page5()
+            page6()
+            credits()
+
+
+
+        else:
+            # Print an error message
+            st.error("Please make sure you downloaded your 365 days analytics")
+
+    else:
         st.error("Please make sure you have the correct file.")
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+#try:
+
+
+
+    # except pd.errors.SheetNameNotFound:
+    #     st.error("Please make sure you have the correct file.")
+
+    # except Exception as e:
+    #     st.error(f"Error: {e}")
 
 
 
@@ -487,13 +540,6 @@ else:
 if excel_file:
     st.write("Excel File Uploaded.")
     data_analysis()
-    page1()
-    page2()
-    page3()
-    page4()
-    page5()
-    page6()
-    credits()
 
 else:
     st.warning("Please upload an Excel file.")
