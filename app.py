@@ -4,6 +4,12 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import openpyxl as excel
 import io
 import pyperclip
+import streamlit as st
+from streamlit_cropper import st_cropper
+from PIL import Image
+
+
+
 
 
 def credits():
@@ -122,7 +128,7 @@ def page1():
 
     # Load the user's avatar image
     global avatar
-    avatar = Image.open(user_avatar_path)  # Replace with the actual path to the user's uploaded image
+    avatar = user_avatar_path  # Replace with the actual path to the user's uploaded image
 
     # Resize the avatar to fit into a circle
     size = (537, 537)  # Set the desired size for the circular avatar
@@ -246,7 +252,7 @@ def page3():
 
    # Load the user's avatar image
     
-    avatar = Image.open(user_avatar_path)  # Replace with the actual path to the user's uploaded image
+    avatar = user_avatar_path  # Replace with the actual path to the user's uploaded image
 
     # Resize the avatar to fit into a circle
     size = (496, 496)  # Set the desired size for the circular avatar
@@ -298,7 +304,7 @@ def page4():
     
 
    # Load the user's avatar image
-    avatar = Image.open('test.jpeg')  # Replace with the actual path to the user's uploaded image
+    avatar = user_avatar_path  # Replace with the actual path to the user's uploaded image
 
     # Resize the avatar to fit into a circle
     size = (496, 496)  # Set the desired size for the circular avatar
@@ -351,7 +357,7 @@ def page5():
     
 
    # Load the user's avatar image
-    avatar = Image.open('test.jpeg')  # Replace with the actual path to the user's uploaded image
+    avatar = user_avatar_path  # Replace with the actual path to the user's uploaded image
 
     # Resize the avatar to fit into a circle
     size = (496, 496)  # Set the desired size for the circular avatar
@@ -389,7 +395,7 @@ def page6():
     base_image = Image.open("page6.png")  # Replace with your actual template path   
 
    # Load the user's avatar image
-    avatar = Image.open('test.jpeg')  # Replace with the actual path to the user's uploaded image
+    avatar = user_avatar_path  # Replace with the actual path to the user's uploaded image
 
     # Resize the avatar to fit into a circle
     size = (600, 600)  # Set the desired size for the circular avatar
@@ -421,6 +427,27 @@ def page6():
 
 
 
+def crop():
+ 
+    uploaded_file = st.file_uploader("Upload your profile picture:", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        #st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+
+        # Get the image as a PIL Image
+        image = Image.open(uploaded_file)
+
+        # Set the aspect_ratio parameter to enforce a square crop box
+        user_avatar_path = st_cropper(image, aspect_ratio=(1, 1))
+
+        # Display the cropped image
+        #st.image(cropped_image, caption="Cropped Image", use_column_width=True)
+
+        # You can do further processing or save the cropped image here
+        # For example, you can save it back to a file using cropped_image.save("cropped_image.jpg")
+
+
+
 
 # Streamlit app
 st.title("Linkedin wrapped Generator")
@@ -432,13 +459,18 @@ user_name = st.text_input("Enter your full name:")
 user_avatar_path = st.file_uploader("Upload your profile picture:", type=["jpg", "png", "jpeg"])
 
 # User input for Excel file
-excel_file = st.file_uploader("Export your analytics and upload here (.xlsx):", type=["xlsx"])
+st.subheader("Export your 365 days analytics from Linkedin")
+excel_file = st.file_uploader("Upload here (.xlsx):", type=["xlsx"])
 
 # Display inputs
-st.write("Entered Name:", user_name)
+#st.write("Entered Name:", user_name)
 
 if user_avatar_path:
     st.write("Avatar Image Uploaded.")
+    image = Image.open(user_avatar_path)
+    # Set the aspect_ratio parameter to enforce a square crop box
+    user_avatar_path = st_cropper(image, aspect_ratio=(1, 1))
+
 else:
     st.warning("Please upload an avatar image.")
 
