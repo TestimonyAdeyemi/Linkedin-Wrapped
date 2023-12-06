@@ -40,66 +40,75 @@ def format_large_number(number):
 
 
 def data_analysis():
-    ENGAGEMENT = pd.read_excel(excel_file, sheet_name='ENGAGEMENT')
-    TOP_POSTS = pd.read_excel(excel_file,sheet_name='TOP POSTS')
-    FOLLOWER = pd.read_excel(excel_file, sheet_name='FOLLOWERS')
-    DEMOGRAPHICS = pd.read_excel(excel_file, sheet_name='DEMOGRAPHICS')
+    try:
 
-    ENGAGEMENT['Date'] = pd.to_datetime(ENGAGEMENT['Date'])
-    ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= '11/30/2023')]
-    ENGAGEMENT['month'] = ENGAGEMENT['Date'].dt.month
-    global Total_Impressions
-    Total_Impressions = ENGAGEMENT['Impressions'].sum()
-    Total_Impressions = format_large_number(Total_Impressions)
+        ENGAGEMENT = pd.read_excel(excel_file, sheet_name='ENGAGEMENT')
+        TOP_POSTS = pd.read_excel(excel_file,sheet_name='TOP POSTS')
+        FOLLOWER = pd.read_excel(excel_file, sheet_name='FOLLOWERS')
+        DEMOGRAPHICS = pd.read_excel(excel_file, sheet_name='DEMOGRAPHICS')
+
+        ENGAGEMENT['Date'] = pd.to_datetime(ENGAGEMENT['Date'])
+        ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= '11/30/2023')]
+        ENGAGEMENT['month'] = ENGAGEMENT['Date'].dt.month
+        global Total_Impressions
+        Total_Impressions = ENGAGEMENT['Impressions'].sum()
+        Total_Impressions = format_large_number(Total_Impressions)
+        
+
+
+        global Total_Engagements
+        Total_Engagements = ENGAGEMENT['Engagements'].sum()
+        Total_Engagements = format_large_number(Total_Engagements) 
+
     
+        global total_followers
+        header = FOLLOWER.columns.tolist()
+        total_followers = header[-1]
+        total_followers = format_large_number(total_followers)
 
 
-    global Total_Engagements
-    Total_Engagements = ENGAGEMENT['Engagements'].sum()
-    Total_Engagements = format_large_number(Total_Engagements) 
+        # Assign the second row as the header
+        FOLLOWER.columns = FOLLOWER.iloc[1]
+        # Drop the rows above the second row
+        FOLLOWER = FOLLOWER[2:].reset_index(drop=True)
+        FOLLOWER = FOLLOWER[(FOLLOWER['Date'] >= '01/01/2023') & (FOLLOWER['Date'] <= '11/30/2023')]
+        global Total_New_FOLLOWER
+        Total_New_FOLLOWER = FOLLOWER['New followers'].sum() 
+        Total_New_FOLLOWER = format_large_number(Total_New_FOLLOWER)
+        
+        
+        
+        global Top_Locations
+        global Top_Job_Titles
+        Top_Job_Titles = ""
+        Top_Locations = ""
+        Top_Industries = ""
 
- 
-    global total_followers
-    header = FOLLOWER.columns.tolist()
-    total_followers = header[-1]
-    total_followers = format_large_number(total_followers)
+        # Check the value based on the "Top Demographics"
+        for index, row in DEMOGRAPHICS.iterrows():
+            top_demographics = row['Top Demographics']
+            value = row['Value']
+            if top_demographics == 'Job titles':
+                Top_Job_Titles += f"{value}\n"
+            elif top_demographics == 'Locations':
+                Top_Locations += f"{value}\n"
+            elif top_demographics == 'Industries':
+                Top_Industries += f"{value}\n"
+
+        # Display or use the result_string as needed with numbered bullets
+
+        Top_Job_Titles = "\n".join([f"{i+1}. {title}" for i, title in enumerate(Top_Job_Titles.split("\n")[:-1])])
+
+        Top_Locations = "\n".join([f"{i+1}. {location}" for i, location in enumerate(Top_Locations.split("\n")[:-1])])
+
+        Top_Industries = "\n".join([f"{i+1}. {industry}" for i, industry in enumerate(Top_Industries.split("\n")[:-1])])
 
 
-    # Assign the second row as the header
-    FOLLOWER.columns = FOLLOWER.iloc[1]
-    # Drop the rows above the second row
-    FOLLOWER = FOLLOWER[2:].reset_index(drop=True)
-    FOLLOWER = FOLLOWER[(FOLLOWER['Date'] >= '01/01/2023') & (FOLLOWER['Date'] <= '11/30/2023')]
-    global Total_New_FOLLOWER
-    Total_New_FOLLOWER = FOLLOWER['New followers'].sum() 
-    Total_New_FOLLOWER = format_large_number(Total_New_FOLLOWER)
-    
-    
-    
-    global Top_Locations
-    global Top_Job_Titles
-    Top_Job_Titles = ""
-    Top_Locations = ""
-    Top_Industries = ""
+    except pd.errors.SheetNameNotFound:
+        st.error("Please make sure you have the correct file.")
 
-    # Check the value based on the "Top Demographics"
-    for index, row in DEMOGRAPHICS.iterrows():
-        top_demographics = row['Top Demographics']
-        value = row['Value']
-        if top_demographics == 'Job titles':
-            Top_Job_Titles += f"{value}\n"
-        elif top_demographics == 'Locations':
-            Top_Locations += f"{value}\n"
-        elif top_demographics == 'Industries':
-            Top_Industries += f"{value}\n"
-
-    # Display or use the result_string as needed with numbered bullets
-
-    Top_Job_Titles = "\n".join([f"{i+1}. {title}" for i, title in enumerate(Top_Job_Titles.split("\n")[:-1])])
-
-    Top_Locations = "\n".join([f"{i+1}. {location}" for i, location in enumerate(Top_Locations.split("\n")[:-1])])
-
-    Top_Industries = "\n".join([f"{i+1}. {industry}" for i, industry in enumerate(Top_Industries.split("\n")[:-1])])
+    except Exception as e:
+        st.error(f"Error: {e}")
 
 
 
@@ -160,7 +169,8 @@ def page1():
     st.image(base_image, caption="Page1", use_column_width=True)
     # Add a download button for the image
 
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button")
+    #st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page1Edit.png", key="download_button")
     #st.download_button(label="Download Image", data = base_image, key="download_button")
 
 
@@ -222,7 +232,7 @@ def page2():
     st.image(base_image, caption="Page2", use_column_width=True)
     # Add a download button for the image
 
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button2")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page2Edit.png", key="download_button2")
 
 
 def page3():
@@ -279,7 +289,7 @@ def page3():
     base_image.save(image_bytes, format="PNG")
     st.image(base_image, caption="Page3", use_column_width=True)
     # Add a download button for the image
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button3")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page3Edit.png", key="download_button3")
 
 
 
@@ -332,7 +342,7 @@ def page4():
     base_image.save(image_bytes, format="PNG")
     st.image(base_image, caption="Page4", use_column_width=True)
     # Add a download button for the image
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button4")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page4Edit.png", key="download_button4")
 
 
 
@@ -385,7 +395,7 @@ def page5():
     base_image.save(image_bytes, format="PNG")
     st.image(base_image, caption="Page5", use_column_width=True)
     # Add a download button for the image
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button5")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page5Edit.png", key="download_button5")
 
 
 
@@ -423,7 +433,7 @@ def page6():
     base_image.save(image_bytes, format="PNG")
     st.image(base_image, caption="Page6", use_column_width=True)
     # Add a download button for the image
-    st.download_button(label="Download Image", data=image_bytes.getvalue(), key="download_button6")
+    st.download_button(label="Download Image", data=image_bytes.getvalue(), file_name="page6Edit.png", key="download_button6")
 
 
 
