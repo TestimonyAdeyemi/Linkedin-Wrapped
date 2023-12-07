@@ -539,9 +539,16 @@ else:
 
 if excel_file:
     st.write("Excel File Uploaded.")
-    data_analysis()
+    
 
 else:
     st.warning("Please upload an Excel file.")
+
+if  excel_file is not None and user_avatar_path:
+        # Call your function
+        data_analysis()
+else:
+    # Display an error message
+    st.error("Please upload your Excel file and Image.")
 
 # Note: You can add the flyer generation part back as needed.
