@@ -79,8 +79,11 @@ def data_analysis():
             FOLLOWER = pd.read_excel(excel_file, sheet_name='FOLLOWERS')
             DEMOGRAPHICS = pd.read_excel(excel_file, sheet_name='DEMOGRAPHICS')
 
+            # Set today's date
+            today_date = datetime.today().strftime('%m/%d/%Y')
+
             ENGAGEMENT['Date'] = pd.to_datetime(ENGAGEMENT['Date'])
-            ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= '11/30/2023')]
+            ENGAGEMENT = ENGAGEMENT[(ENGAGEMENT['Date'] >= '01/01/2023') & (ENGAGEMENT['Date'] <= today_date)]
             ENGAGEMENT['month'] = ENGAGEMENT['Date'].dt.month
             global Total_Impressions
             Total_Impressions = ENGAGEMENT['Impressions'].sum()

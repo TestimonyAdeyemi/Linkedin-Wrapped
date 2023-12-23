@@ -26,6 +26,16 @@ def crop():
         st.image(cropped_image, caption="Cropped Image", use_column_width=True)
         print(cropped_image)
 
+
+                # Specify the file path for the new cropped image
+        new_image_path = "path/to/your/new_cropped_image.jpg"
+
+        # Save the cropped image to the new file path
+        cropped_image.save(new_image_path)
+
+        # Optionally, display the cropped image
+        cropped_image.show()
+
         # You can do further processing or save the cropped image here
         # For example, you can save it back to a file using cropped_image.save("cropped_image.jpg")
 
